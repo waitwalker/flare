@@ -19,7 +19,8 @@ class AuthController {
           }
           int? result = await _authRepository.findVerifyCodeByMobile(bodyMap['mobile']);
           if (result != null) {
-            return Response.ok(jsonEncode({'code': 0, 'message': 'success', 'data': '获取成功'}));
+            String msg = result == 0 ? "获取成功" : "验证码未过期，请稍后重新获取";
+            return Response.ok(jsonEncode({'code': 0, 'message': msg, 'data': null}));
           } else {
             return Response.ok(jsonEncode({'code': 500, 'message': 'success', 'data': 'Server Interval Error'}));
           }

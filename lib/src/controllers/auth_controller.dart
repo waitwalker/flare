@@ -1,12 +1,31 @@
 import 'dart:convert';
 
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:flare/config/jwt_config.dart';
 import 'package:flare/src/repositories/auth_repository.dart';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 import 'package:shelf/shelf.dart';
 
+enum AuthType {
+  apple('apple'),
+  google('google'),
+  facebook('facebook'),
+  line('line'),
+  kakao('kakao'),
+  wechat('wechat'),
+  email('email'),
+  mobile('mobile'),
+  accountName('account_name');
+
+  final String value;
+
+  const AuthType(this.value);
+}
+
 class AuthController {
   final AuthRepository _authRepository = AuthRepository();
 
+  /// 获取验证码
   Future<Response> getVerifyMobileCode(Request request) async {
     try {
       String body = '${request.context['body']}';
@@ -34,5 +53,31 @@ class AuthController {
       print("server interval error = $e");
       rethrow;
     }
+  }
+
+  Future<Response> issueToken(Request request, String type) async {
+    if (type == AuthType.mobile.value) {
+      return Response.ok(jsonEncode({'code': 400}));
+    } else {
+      return Response.notFound(jsonEncode({'code': 404, 'data': 'not found'}));
+    }
+  }
+
+  String _generateAccessToken(String phone) {
+    final jwt = JWT({
+      'sub': phone,
+      'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      'exp': DateTime.now().add(Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
+    });
+    return jwt.sign(SecretKey(jwtSecret));
+  }
+
+  String _generateRefreshToken(String phone) {
+    final jwt = JWT({
+      'sub': phone,
+      'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      'exp': DateTime.now().add(Duration(days: 7)).millisecondsSinceEpoch ~/ 1000,
+    });
+    return jwt.sign(SecretKey(jwtSecret));
   }
 }

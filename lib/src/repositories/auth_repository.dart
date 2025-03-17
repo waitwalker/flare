@@ -13,7 +13,7 @@ class AuthRepository {
       SELECT expired_at FROM account_verify 
       WHERE receiver = @receiver
       AND scene = @scene
-      AND expired_timestamp > NOW()
+      AND expired_at > NOW()
       '''),
         parameters: queryParameters,
       );
@@ -30,14 +30,13 @@ class AuthRepository {
           "createdAt": dateTimeUpdate,
           "updatedAt": dateTimeUpdate,
           "expiredAt": dateTimeExpire,
-          "expiredTimestamp": dateTimeExpire,
         };
         expired = true;
         return await conn.execute(
           Sql.named('''
-      INSERT INTO account_verify (receiver, receiver_type, code, scene, expired_at, created_at, updated_at, expired_timestamp)
-    VALUES (@receiver, @receiverType, @code, @scene, @expiredAt, @createdAt, @updatedAt, @expiredTimestamp)
-    RETURNING id;
+      INSERT INTO account_verify (receiver, receiver_type, code, scene, expired_at, created_at, updated_at)
+      VALUES (@receiver, @receiverType, @code, @scene, @expiredAt, @createdAt, @updatedAt)
+      RETURNING id;
       '''),
           parameters: parameters,
         );

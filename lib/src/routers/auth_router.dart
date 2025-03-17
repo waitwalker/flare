@@ -1,3 +1,4 @@
+import 'package:flare/src/constant/route_path.dart';
 import 'package:flare/src/controllers/auth_controller.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -12,9 +13,14 @@ class AuthRouter {
 
   void callHandle() {
     _handleVerifyCodeRoute();
+    _handleIssueTokenRoute();
   }
 
   void _handleVerifyCodeRoute() {
-    _router.post('/verify/mobile/code', _authController.getVerifyMobileCode);
+    _router.post(verifyMobileCode, _authController.getVerifyMobileCode);
+  }
+
+  void _handleIssueTokenRoute() {
+    _router.post(issueToken, _authController.issueToken);
   }
 }
